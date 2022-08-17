@@ -1,0 +1,7 @@
+{
+    "host" : "footballclub.c5fmou0yzu0u.us-west-1.rds.amazonaws.com",
+    "user" : "hyooa",
+    "password" : "!a32316849",
+    "port" : "3306",
+    "database" : "football"
+}

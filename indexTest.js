@@ -122,6 +122,17 @@ app.post('/login', async(req, res) => {
     )
 })
 
+// 💛 회원정보 조회
+app.get('/mypage/:no', async (req, res) => {
+    const params = req.params;
+    connection.query(
+        `select * from customer_members where no=${no}`,
+        (err, rows, fields) => {
+            res.send(rows[0]);
+        }
+    )
+})
+
 // 💛 서버실행
 app.listen(port, () => {
     console.log("고객 서버가 돌아가고 있습니다.");

@@ -4,6 +4,9 @@ const cors = require("cors");
 const app = express();
 const port = 3001;
 const mysql = require("mysql");
+const multer = require('multer'); // 불러오기
+app.use(express.static("public")); //public이라는 폴더에 있는 파일에 접근 할 수 있도록 설정
+
 const fs = require("fs"); // 파일을 읽어오도록 해줌
 const dbinfo = fs.readFileSync("./database.json");
 const conf = JSON.parse(dbinfo); // json데이터를 객체 형태로 변경
@@ -123,15 +126,80 @@ app.post('/login', async(req, res) => {
 })
 
 // 💛 회원정보 조회
-app.get('/mypage/:no', async (req, res) => {
+app.get("/mypage/:no", async (req, res) => {
     const params = req.params;
+    const {no} = params;
+    console.log(no);
     connection.query(
-        `select * from customer_members where no=${no}`,
+        `select * from customer_members where usermail='${no}'`,
         (err, rows, fields) => {
+            console.log(rows);
+            // console.log(err);
             res.send(rows[0]);
         }
     )
 })
+
+// 💛 선수 등록
+app.post("/host", async (req, res) => {
+    const { name, number, national, place, position, dob, height, debut, mainimg, serveimg } = req.body;
+    connection.query(
+        "insert into player(`name`, `number`, `national`, `place`, `position`, `dob`, `height`, `debut`, `mainimg`, `serveimg`) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [name, number, national, place, position, dob, height, debut, mainimg, serveimg],
+        (err, rows, fields) => {
+            console.log(rows);
+            console.log(err);
+            res.send('선수 등록 완료')
+        }
+    )
+})
+    // 이미지 저장
+    const storage = multer.diskStorage({
+        destination : function(req, res, cb) {
+            cb(null, 'public/player/')
+        },
+        filename : function(req, file, cb) {
+            cb(null, file.originalname);
+        }
+    })
+    // 파일 사이즈 지정
+    const upload = multer({
+        storage : storage,
+        limits : { fileSize : 30000000 }
+    })
+    // 받아서 보내줌
+    app.post("/upload", upload.array("image"), function(req, res) {
+        // const file = req.file;
+        const fileList = req.files;
+        console.log(fileList);
+        res.send({fileList});
+    })
+
+// 💛 선수 List 보기
+app.get("/player", async (req, res) => {
+    console.log(req.body);
+    connection.query(
+        "select * from player",
+        (err, rows, fields) => {
+            console.log(rows);
+            console.log(err);
+            res.send(rows);
+        }
+    )
+})
+
+// 💛 선수 개별 보기
+// app.get("/playerMore/:name", async (req, res) => {
+//     const params = req.params
+//     const {name} = params
+//     connection.query(
+//         `select * from player where name=${name}`,
+//         (err, rows, fields) => {
+//             console.log(rows);
+//             res.send(rows);
+//         }
+//     )
+// })
 
 // 💛 서버실행
 app.listen(port, () => {

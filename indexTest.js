@@ -84,12 +84,12 @@ app.post("/join", async(req, res) => {
             bcrypt.hash(myPlanintextPass, salt, function(err, hash) {
                 myPass = hash;
                 const { username, userpass, useradd , userphone, userdate, usermail } = req.body;
-                console.log(req.body);
+                // console.log(req.body);
                 connection.query("insert into customer_members(`username`, `userpass`, `useradd`, `userphone`, `usermail`, `userdate`) values(?,?,?,?,?, DATE_FORMAT(now(), '%Y-%m-%d'))",
                 [username, myPass, useradd, userphone, usermail],
                 (err, result, fields) => {
-                    console.log(result);
-                    console.log(err);
+                    // console.log(result);
+                    // console.log(err);
                     res.send("등록되었습니다.");
                 })
             })
@@ -100,7 +100,7 @@ app.post("/join", async(req, res) => {
 // 💛 로그인
 app.post('/login', async(req, res) => {
     const { usermail, userpass } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     connection.query(
         `select * from customer_members where usermail = '${usermail}'`,
         (err, rows, fields) => {
@@ -111,10 +111,10 @@ app.post('/login', async(req, res) => {
                     bcrypt.compare(userpass, rows[0].userpass, function(err, login_flag) {
                         if(login_flag == true) {
                             res.send(rows[0])
-                            console.log("이거");
+                            // console.log("이거");
                         } else {
                             res.send(null)
-                            console.log("저거");
+                            // console.log("저거");
                         }
                     })
                 }
@@ -129,11 +129,11 @@ app.post('/login', async(req, res) => {
 app.get("/mypage/:no", async (req, res) => {
     const params = req.params;
     const {no} = params;
-    console.log(no);
+    // console.log(no);
     connection.query(
         `select * from customer_members where usermail='${no}'`,
         (err, rows, fields) => {
-            console.log(rows);
+            // console.log(rows);
             // console.log(err);
             res.send(rows[0]);
         }
@@ -144,12 +144,12 @@ app.get("/mypage/:no", async (req, res) => {
 app.post("/host", async (req, res) => {
     const { name, number, national, place, position, dob, height, debut, mainimg, serveimg } = req.body;
     connection.query(
-        "insert into player(`name`, `number`, `national`, `place`, `position`, `dob`, `height`, `debut`, `mainimg`, `serveimg`) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "insert into playerlist(`name`, `number`, `national`, `place`, `position`, `dob`, `height`, `debut`, `mainimg`, `serveimg`) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [name, number, national, place, position, dob, height, debut, mainimg, serveimg],
         (err, rows, fields) => {
-            console.log(rows);
-            console.log(err);
-            res.send('선수 등록 완료')
+            // console.log(rows);
+            // console.log(err);
+            res.send('선수 등록 완료');
         }
     )
 })
@@ -171,22 +171,21 @@ app.post("/host", async (req, res) => {
     app.post("/upload", upload.array("image"), function(req, res) {
         // const file = req.file;
         const fileList = req.files;
-        console.log(fileList);
+        // console.log(fileList);
         res.send({fileList});
     })
 
 // 💛 선수 List 보기
-app.get("/player", async (req, res) => {
-    console.log(req.body);
-    connection.query(
-        "select * from player",
-        (err, rows, fields) => {
-            console.log(rows);
-            console.log(err);
-            res.send(rows);
-        }
-    )
-})
+// app.get("/player", async (req, res) => {
+//     console.log(req.body);
+//     connection.query(
+//         "select * from playerlist", (err, rows, fields) => {
+//             console.log(rows);
+//             console.log(fields);
+//             res.send(rows);
+//         }
+//     )
+// })
 
 // 💛 선수 개별 보기
 // app.get("/playerMore/:name", async (req, res) => {
@@ -200,6 +199,40 @@ app.get("/player", async (req, res) => {
 //         }
 //     )
 // })
+
+// 💛 티켓 등록
+app.post("/host", async (req, res) => {
+    const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
+    connection.query(
+        "insert into ticket(`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) values(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
+        (err, rows, fields) => {
+            console.log(err);
+            console.log(rows);
+            console.log(fields);
+            res.send('테켓 등록 완료');
+        }
+    )
+})
+    // 이미지 저장
+    const storage2 = multer.diskStorage({
+        destination : function(req, res, cb) {
+            cb(null, 'public/ticket/')
+        },
+        filename : function(req, file, cb) {
+            cb(null, file.originalname);
+        }
+    })
+    // 파일 사이즈 지정
+    const upload2 = multer({
+        storage : storage2,
+        limits : { fileSize : 30000000 }
+    })
+    // 받아서 보내줌
+    app.post("/upload2", upload2.array("image2"), function(req, res) {
+        const fileList = req.files;
+        res.send({fileList});
+    })
 
 // 💛 서버실행
 app.listen(port, () => {

@@ -176,16 +176,15 @@ app.post("/host", async (req, res) => {
     })
 
 // 💛 선수 List 보기
-// app.get("/player", async (req, res) => {
-//     console.log(req.body);
-//     connection.query(
-//         "select * from playerlist", (err, rows, fields) => {
-//             console.log(rows);
-//             console.log(fields);
-//             res.send(rows);
-//         }
-//     )
-// })
+app.get("/player", async (req, res) => {
+    console.log(req.body);
+    connection.query(
+        "select * from playerlist", (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+})
 
 // 💛 선수 개별 보기
 // app.get("/playerMore/:name", async (req, res) => {
@@ -201,16 +200,15 @@ app.post("/host", async (req, res) => {
 // })
 
 // 💛 티켓 등록
-app.post("/host", async (req, res) => {
+app.post("/hostTicket", async (req, res) => {
     const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
     connection.query(
-        "insert into ticket(`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) values(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        // INSERT INTO `football`.`ticket` (`kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) 
+        // VALUES ('01:30', 'Everton.png', 'Everton', 'SUM 07 August 2022', 'Goodison Park', '에버턴', '08월 07일 일요일', '50,000', 'August');
+        "INSERT INTO `football`.`ticket` (`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
         (err, rows, fields) => {
-            console.log(err);
-            console.log(rows);
-            console.log(fields);
-            res.send('테켓 등록 완료');
+            res.send('티켓 등록 완료');
         }
     )
 })
@@ -230,8 +228,8 @@ app.post("/host", async (req, res) => {
     })
     // 받아서 보내줌
     app.post("/upload2", upload2.array("image2"), function(req, res) {
-        const fileList = req.files;
-        res.send({fileList});
+        const fileList2 = req.files;
+        res.send({fileList2});
     })
 
 // 💛 서버실행

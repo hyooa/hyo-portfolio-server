@@ -55,8 +55,16 @@ const connection = mysql.createConnection({
     database : conf.database,
 })
 
+// use는 앱에 대한 설정 json형식으로 정보를 전달하겠다.
+// json 형식의 데이터를 처리할 수 있게 설정하는 코드
 app.use(express.json());
+
+// 모든 브라우저에서 요청을 할수있게해줌
+// 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
 app.use(cors());
+
+// 모든 접근을 허용하지 말고 아래처럼 특정 도메인을 적어주자.
+// app.use(cors({ origin: 'http://localhost:3000'}));
 
 // 💛 회원가입
     // Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
@@ -175,8 +183,19 @@ app.post("/host", async (req, res) => {
         res.send({fileList});
     })
 
-// 💛 선수 List 보기
+// 💛 선수 List 보기 / 🚨 안되는 중 🚨
 app.get("/player", async (req, res) => {
+    // 모든 사이트를 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": *
+    // 특정한 사이트만 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": https://www.coding-groot.tistory.com/
+    // res.header("Access-Control-Allow-Origin", "*");
+
+    // 응답 헤더의 access-controll-allow-origin의 의미는 "여기에 적힌놈은 정책 무시했어도 걍 허용해 줘라"라는 뜻이다.
+    // res.set({'access-control-allow-origin': '*'});
+
+    // 응답 헤더의 access-controll-allow-origin의 의미는 "여기에 적힌놈은 정책 무시했어도 걍 허용해 줘라"라는 뜻이다
+    // res.set({'access-control-allow-origin':'http://localhost:3001'});
+    // res.req.method = req.headers['access-control-request-method'];
+
     console.log(req.body);
     connection.query(
         "select * from playerlist", (err, rows, fields) => {
@@ -231,6 +250,17 @@ app.post("/hostTicket", async (req, res) => {
         const fileList2 = req.files;
         res.send({fileList2});
     })
+
+// 💛 티켓 구매
+app.get("/match", async (req, res) => {
+    console.log(req.body);
+    connection.query(
+        "select * from ticket", (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+})
 
 // 💛 서버실행
 app.listen(port, () => {

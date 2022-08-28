@@ -63,8 +63,15 @@ app.use(express.json());
 // 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
 app.use(cors());
 
-// 모든 접근을 허용하지 말고 아래처럼 특정 도메인을 적어주자.
-// app.use(cors({ origin: 'http://localhost:3000'}));
+// const corsOptions = {
+//     origin : "http://localhost:3001",
+// };
+// app.use(cors(corsOptions));
+
+// app.get('/api', (req, res) => {
+//     res.header("Access-Control-Allow-Origin", "http://localhost:3001");
+//     res.send(data);
+// })
 
 // 💛 회원가입
     // Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
@@ -185,6 +192,12 @@ app.post("/host", async (req, res) => {
 
 // 💛 선수 List 보기 / 🚨 안되는 중 🚨
 app.get("/player", async (req, res) => {
+    // res.setHeader("Access-Control-Allow-Origin", "*")
+    // res.setHeader("Access-Control-Allow-Credentials", "true");
+    // res.setHeader("Access-Control-Max-Age", "1800");
+    // res.setHeader("Access-Control-Allow-Headers", "content-type");
+    // res.setHeader( "Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS" ); 
+
     // 모든 사이트를 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": *
     // 특정한 사이트만 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": https://www.coding-groot.tistory.com/
     // res.header("Access-Control-Allow-Origin", "*");

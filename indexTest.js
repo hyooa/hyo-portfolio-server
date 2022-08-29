@@ -7,6 +7,7 @@ const mysql = require("mysql");
 const multer = require('multer'); // 불러오기
 app.use(express.static("public")); //public이라는 폴더에 있는 파일에 접근 할 수 있도록 설정
 
+
 const fs = require("fs"); // 파일을 읽어오도록 해줌
 const dbinfo = fs.readFileSync("./database.json");
 const conf = JSON.parse(dbinfo); // json데이터를 객체 형태로 변경
@@ -14,6 +15,13 @@ const conf = JSON.parse(dbinfo); // json데이터를 객체 형태로 변경
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
+// use는 앱에 대한 설정 json형식으로 정보를 전달하겠다.
+// json 형식의 데이터를 처리할 수 있게 설정하는 코드
+app.use(express.json());
+
+// 모든 브라우저에서 요청을 할수있게해줌
+// 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
+app.use(cors());
 
 // connection mysql연결 🧡
 // createConnection()
@@ -55,13 +63,6 @@ const connection = mysql.createConnection({
     database : conf.database,
 })
 
-// use는 앱에 대한 설정 json형식으로 정보를 전달하겠다.
-// json 형식의 데이터를 처리할 수 있게 설정하는 코드
-app.use(express.json());
-
-// 모든 브라우저에서 요청을 할수있게해줌
-// 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
-app.use(cors());
 
 // const corsOptions = {
 //     origin : "http://localhost:3001",
@@ -190,47 +191,6 @@ app.post("/host", async (req, res) => {
         res.send({fileList});
     })
 
-// 💛 선수 List 보기 / 🚨 안되는 중 🚨
-app.get("/player", async (req, res) => {
-    // res.setHeader("Access-Control-Allow-Origin", "*")
-    // res.setHeader("Access-Control-Allow-Credentials", "true");
-    // res.setHeader("Access-Control-Max-Age", "1800");
-    // res.setHeader("Access-Control-Allow-Headers", "content-type");
-    // res.setHeader( "Access-Control-Allow-Methods", "PUT, POST, GET, DELETE, PATCH, OPTIONS" ); 
-
-    // 모든 사이트를 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": *
-    // 특정한 사이트만 허용하는 경우 : "Origin을 Access-Control-Allow-Origin": https://www.coding-groot.tistory.com/
-    // res.header("Access-Control-Allow-Origin", "*");
-
-    // 응답 헤더의 access-controll-allow-origin의 의미는 "여기에 적힌놈은 정책 무시했어도 걍 허용해 줘라"라는 뜻이다.
-    // res.set({'access-control-allow-origin': '*'});
-
-    // 응답 헤더의 access-controll-allow-origin의 의미는 "여기에 적힌놈은 정책 무시했어도 걍 허용해 줘라"라는 뜻이다
-    // res.set({'access-control-allow-origin':'http://localhost:3001'});
-    // res.req.method = req.headers['access-control-request-method'];
-
-    console.log(req.body);
-    connection.query(
-        "select * from playerlist", (err, rows, fields) => {
-            console.log(rows);
-            res.send(rows);
-        }
-    )
-})
-
-// 💛 선수 개별 보기
-// app.get("/playerMore/:name", async (req, res) => {
-//     const params = req.params
-//     const {name} = params
-//     connection.query(
-//         `select * from player where name=${name}`,
-//         (err, rows, fields) => {
-//             console.log(rows);
-//             res.send(rows);
-//         }
-//     )
-// })
-
 // 💛 티켓 등록
 app.post("/hostTicket", async (req, res) => {
     const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
@@ -268,7 +228,7 @@ app.post("/hostTicket", async (req, res) => {
 app.get("/match", async (req, res) => {
     connection.query(
         "select * from ticket", (err, rows, fields) => {
-            console.log(rows);
+            // console.log(rows);
             res.send(rows);
         }
     )
@@ -279,9 +239,34 @@ app.get("/matchMonth/:month", async (req, res) => {
     const params = req.params;
     const month = params.month;
     // const {month} = req.params;
-    console.log(month);
+    // console.log(month);
     connection.query(
         `select * from ticket where month='${month}'`,
+        (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+
+// 💛 선수 List 보기 / 🚨 안되는 중 🚨
+app.get("/suhan", async (req, res) => {
+    connection.query(
+        "select * from playerlist", (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+
+// 💛 선수 개별 보기
+app.get("/playerPhoto/:name", async (req, res) => {
+    const {name} = req.params;
+    // const params = req.params;
+    // const name = params.name;
+    console.log(name);
+    connection.query(
+        `select * from playerlist where name='${name}'`,
         (err, rows, fields) => {
             console.log(rows);
             res.send(rows);

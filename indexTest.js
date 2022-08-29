@@ -266,9 +266,23 @@ app.post("/hostTicket", async (req, res) => {
 
 // 💛 티켓 구매
 app.get("/match", async (req, res) => {
-    console.log(req.body);
     connection.query(
         "select * from ticket", (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+
+// 💛 티켓 월별 보기
+app.get("/matchMonth/:month", async (req, res) => {
+    const params = req.params;
+    const month = params.month;
+    // const {month} = req.params;
+    console.log(month);
+    connection.query(
+        `select * from ticket where month='${month}'`,
+        (err, rows, fields) => {
             console.log(rows);
             res.send(rows);
         }

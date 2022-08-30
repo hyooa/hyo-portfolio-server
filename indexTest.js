@@ -260,16 +260,16 @@ app.get("/suhan", async (req, res) => {
 })
 
 // 💛 선수 개별 보기
-app.get("/playerPhoto/:name", async (req, res) => {
-    const {name} = req.params;
-    // const params = req.params;
-    // const name = params.name;
+app.get("/playerMore/:name", async (req, res) => {
+    // const {name} = req.params;
+    const params = req.params;
+    const name = params.name;
     console.log(name);
     connection.query(
         `select * from playerlist where name='${name}'`,
         (err, rows, fields) => {
             console.log(rows);
-            res.send(rows);
+            res.send(rows[0]);
         }
     )
 })

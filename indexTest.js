@@ -195,8 +195,6 @@ app.post("/host", async (req, res) => {
 app.post("/hostTicket", async (req, res) => {
     const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
     connection.query(
-        // INSERT INTO `football`.`ticket` (`kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) 
-        // VALUES ('01:30', 'Everton.png', 'Everton', 'SUM 07 August 2022', 'Goodison Park', '에버턴', '08월 07일 일요일', '50,000', 'August');
         "INSERT INTO `football`.`ticket` (`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
         (err, rows, fields) => {
@@ -264,15 +262,63 @@ app.get("/playerMore/:name", async (req, res) => {
     // const {name} = req.params;
     const params = req.params;
     const name = params.name;
-    console.log(name);
+    // console.log(name);
     connection.query(
         `select * from playerlist where name='${name}'`,
         (err, rows, fields) => {
-            console.log(rows);
+            // console.log(rows);
             res.send(rows[0]);
         }
     )
 })
+
+// 💛 문의글 작성하기
+app.post("/contact", async (req, res) => {
+    const { id, title, content, date, keyword, answer, secret } = req.body;
+    connection.query(
+        "insert into contact (`id`, `title`, `content`, `date`, `keyword`, `answer`, `secret`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?)",
+        [id, title, content, date, keyword, answer, secret],
+        (err, rows, fields) => {
+            // console.log(rows);
+            res.send("문의글 등록완료");
+        }
+    )
+})
+
+// 💛 전체 문의글 보기
+// 💛 mypage에서 내 문의글 보기
+
+// 💛 팬글 작성하기
+app.post("/playerFan", async (req, res) => {
+    const { id, like, comment, best, player } = req.body;
+    connection.query(
+        "insert into comment (`id`, `like`, `comment`, `best`, `player`) values (?, ?, ?, ?, ?)",
+        [id, like, comment, best, player],
+        (err, rows, fields) => {
+            console.log(rows);
+            res.send("팬글 등록완료");
+        }
+    )
+})
+
+// // 💛 팬글 보기
+app.get("/playerMore/:player", async (req, res) => {
+    const params = req.params;
+    const player = params.name;
+    connection.query(
+        `select * from comment where player='${player}'`,
+        (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+// 💛 mypage에서 내 팬글 보기
+
+
+
+
+
 
 // 💛 서버실행
 app.listen(port, () => {

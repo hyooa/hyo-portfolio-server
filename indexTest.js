@@ -143,7 +143,7 @@ app.post('/login', async(req, res) => {
 app.get("/host", async (req, res) => {
     // console.log(no);
     connection.query(
-        `select * from customer_members`,
+        `select * from customer_members order by username asc`,
         (err, rows, fields) => {
             // console.log(rows);
             res.send(rows);
@@ -245,7 +245,7 @@ app.get("/match", async (req, res) => {
 // 💛 선수 List 보기
 app.get("/suhan", async (req, res) => {
     connection.query(
-        "select * from playerlist", (err, rows, fields) => {
+        "select * from playerlist order by name asc", (err, rows, fields) => {
             // console.log(rows);
             res.send(rows);
         }
@@ -257,19 +257,28 @@ app.get("/playerMore/:name", async (req, res) => {
     // const {name} = req.params;
     const params = req.params;
     const name = params.name;
-    // console.log(name);
+    // console.log(params);
+    // console.log(params.name);
+    // var res1 = `select * from playerlist where name='${name}';`;
+    // var res2 = `select * from comment where player='${name}';`;
+    // console.log(res1);
+    // console.log(res2);
+    // `SELECT a.name,a.no,b.attendance,b.opening,b.genre,b.rating,b.runningtime,b.img,b.no as num from movie as b
+    // RIGHT OUTER JOIN favorites as a on b.name = a.name where a.id = '${id}'`
     connection.query(
+        // res1 + res2,
         `select * from playerlist where name='${name}'`,
-        // `select * from comment where player='${player}'`,
+        // `select * from playerlist where name='${name}'` + `select * from comment where player='${name}'`,
         (err, rows, fields) => {
-            // console.log(rows);
+            // res.send(rows);
             res.send(rows[0]);
+            // result((rows[0].affectedRows + rows[1].affectedRows));
         }
     )
 })
 
 // 💛 문의글 작성하기
-app.post("/contact", async (req, res) => {
+app.post("/textContact", async (req, res) => {
     const { id, title, content, date, keyword, answer, secret } = req.body;
     connection.query(
         "insert into contact (`id`, `title`, `content`, `date`, `keyword`, `answer`, `secret`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?)",
@@ -282,6 +291,15 @@ app.post("/contact", async (req, res) => {
 })
 
 // 💛 전체 문의글 보기
+app.get("/contact", async (req, res) => {
+    connection.query(
+        `select * from contact order by date desc`,
+        (err, rows, fields) => {
+            res.send(rows);
+        }
+    )
+})
+
 // 💛 mypage에서 내 문의글 보기
 
 // 💛 팬글 작성하기
@@ -291,16 +309,17 @@ app.post("/playerFan", async (req, res) => {
         "insert into comment (`id`, `like`, `comment`, `best`, `player`) values (?, ?, ?, ?, ?)",
         [id, like, comment, best, player],
         (err, rows, fields) => {
-            console.log(rows);
+            // console.log(rows);
             res.send("팬글 등록완료");
         }
     )
 })
 
 // // 💛 팬글 보기
-// app.get("/playerMore/:player", async (req, res) => {
+// http://localhost:3001/playerMorefan/Kepa%20Arrizabalaga 받아오고있음
+// app.get("/playerMorefan/:player", async (req, res) => {
 //     const {player} = req.params;
-//     console.log(player);
+//     // console.log(player);
 //     connection.query(
 //         `select * from comment where player='${player}'`,
 //         (err, rows, fields) => {

@@ -74,7 +74,6 @@ const connection = mysql.createConnection({
 //     res.send(data);
 // })
 
-// 💛 회원가입
     // Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
     // 암호화하지 않고 그대로 저장하는 것은 불법
     // 등록일은 Now()함수를 사용하여 생성
@@ -90,8 +89,7 @@ const connection = mysql.createConnection({
     // checkpw(password, hashedPassword)
     // boolean 타입으로 비밀번호와 암호화된 비밀번호를 인자로 받아
     // 같을 경우 true, 다를 경우 false를 반환한다.
-
-// http://localhost:3001/join
+// 💛 회원가입
 app.post("/join", async(req, res) => {
     let myPlanintextPass = req.body.userpass;
     let myPass = "";
@@ -137,6 +135,18 @@ app.post('/login', async(req, res) => {
             } else {
                 res.send(null)
             }
+        }
+    )
+})
+
+// 💛 전체 회원정보 조회
+app.get("/host", async (req, res) => {
+    // console.log(no);
+    connection.query(
+        `select * from customer_members`,
+        (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
         }
     )
 })
@@ -232,22 +242,7 @@ app.get("/match", async (req, res) => {
     )
 })
 
-// 💛 티켓 월별 보기
-app.get("/matchMonth/:month", async (req, res) => {
-    const params = req.params;
-    const month = params.month;
-    // const {month} = req.params;
-    // console.log(month);
-    connection.query(
-        `select * from ticket where month='${month}'`,
-        (err, rows, fields) => {
-            // console.log(rows);
-            res.send(rows);
-        }
-    )
-})
-
-// 💛 선수 List 보기 / 🚨 안되는 중 🚨
+// 💛 선수 List 보기
 app.get("/suhan", async (req, res) => {
     connection.query(
         "select * from playerlist", (err, rows, fields) => {
@@ -265,6 +260,7 @@ app.get("/playerMore/:name", async (req, res) => {
     // console.log(name);
     connection.query(
         `select * from playerlist where name='${name}'`,
+        // `select * from comment where player='${player}'`,
         (err, rows, fields) => {
             // console.log(rows);
             res.send(rows[0]);
@@ -302,17 +298,17 @@ app.post("/playerFan", async (req, res) => {
 })
 
 // // 💛 팬글 보기
-app.get("/playerMore/:player", async (req, res) => {
-    const params = req.params;
-    const player = params.name;
-    connection.query(
-        `select * from comment where player='${player}'`,
-        (err, rows, fields) => {
-            console.log(rows);
-            res.send(rows);
-        }
-    )
-})
+// app.get("/playerMore/:player", async (req, res) => {
+//     const {player} = req.params;
+//     console.log(player);
+//     connection.query(
+//         `select * from comment where player='${player}'`,
+//         (err, rows, fields) => {
+//             console.log(rows);
+//             res.send(rows);
+//         }
+//     )
+// })
 // 💛 mypage에서 내 팬글 보기
 
 

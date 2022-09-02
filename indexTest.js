@@ -171,7 +171,7 @@ app.get("/host", async (req, res) => {
             `select * from contact where usermail='${id}'`,
             (err, rows, fields) => {
                 res.send(rows);
-                console.log(rows[0]);
+                // console.log(rows[0]);
             }
         )
     })
@@ -179,8 +179,9 @@ app.get("/host", async (req, res) => {
     app.post("/mypageConDel/:no", async (req, res) => {
         const params = req.params;
         const {no} = params;
+        console.log(params);
         connection.query(
-            `select * from contact where no='${no}'`,
+            `delete from contact where no='${no}'`,
             (err, rows, fields) => {
                 res.send(rows);
             }
@@ -194,7 +195,7 @@ app.get("/host", async (req, res) => {
             `select * from comment where email='${id}'`,
             (err, rows, fields) => {
                 res.send(rows);
-                console.log(rows[0]);
+                // console.log(rows[0]);
             }
         )
     })

@@ -151,20 +151,42 @@ app.get("/host", async (req, res) => {
     )
 })
 
-// 💛 회원정보 조회
-app.get("/mypage/:no", async (req, res) => {
-    const params = req.params;
-    const {no} = params;
-    // console.log(no);
-    connection.query(
-        `select * from customer_members where usermail='${no}'`,
-        (err, rows, fields) => {
-            // console.log(rows);
-            // console.log(err);
-            res.send(rows[0]);
-        }
-    )
-})
+// 💛 마이페이지
+    // 💛 회원정보 조회
+    app.get("/mypageCustomer/:no", async (req, res) => {
+        const params = req.params;
+        const {no} = params;
+        connection.query( 
+            `select * from customer_members where usermail = '${no}'`,
+            (err, rows, fields) => {
+                res.send(rows[0]);
+            }
+        )
+    })
+    // 💛 mypage에서 내 문의글 보기
+    app.get("/mypageContact/:id", async (req, res) => {
+        const params = req.params;
+        const {id} = params;
+        connection.query(
+            `select * from contact where username='${id}'`,
+            (err, rows, fields) => {
+                res.send(rows);
+                console.log(rows[0]);
+            }
+        )
+    })
+    // 💛 mypage에서 내 팬글 보기
+    app.get("/mypageComment/:id", async (req, res) => {
+        const params = req.params;
+        const {id} = params;
+        connection.query(
+            `select * from comment where email='${id}'`,
+            (err, rows, fields) => {
+                res.send(rows);
+                console.log(rows[0]);
+            }
+        )
+    })
 
 // 💛 선수 등록
 app.post("/host", async (req, res) => {
@@ -279,10 +301,11 @@ app.get("/playerMore/:name", async (req, res) => {
 
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
-    const { id, title, content, date, keyword, answer, secret } = req.body;
+    const { username, title, content, date, keyword, answer, secret, usermail } = req.body;
+    console.log(username,usermail);
     connection.query(
-        "insert into contact (`id`, `title`, `content`, `date`, `keyword`, `answer`, `secret`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?)",
-        [id, title, content, date, keyword, answer, secret],
+        "insert into contact (`username`, `title`, `content`, `date`, `keyword`, `answer`, `secret`, `usermail`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
+        [username, title, content, date, keyword, answer, secret, usermail],
         (err, rows, fields) => {
             // console.log(rows);
             res.send("문의글 등록완료");
@@ -293,21 +316,20 @@ app.post("/textContact", async (req, res) => {
 // 💛 전체 문의글 보기
 app.get("/contact", async (req, res) => {
     connection.query(
-        `select * from contact order by date desc`,
+        "select * from contact", // order by date desc",
         (err, rows, fields) => {
             res.send(rows);
+            console.log(rows);
         }
     )
 })
 
-// 💛 mypage에서 내 문의글 보기
-
 // 💛 팬글 작성하기
 app.post("/playerFan", async (req, res) => {
-    const { id, like, comment, best, player } = req.body;
+    const { id, like, comment, best, player, email } = req.body;
     connection.query(
-        "insert into comment (`id`, `like`, `comment`, `best`, `player`) values (?, ?, ?, ?, ?)",
-        [id, like, comment, best, player],
+        "insert into comment (`id`, `like`, `comment`, `best`, `player`, `email`) values (?, ?, ?, ?, ?, ?)",
+        [id, like, comment, best, player, email],
         (err, rows, fields) => {
             // console.log(rows);
             res.send("팬글 등록완료");
@@ -328,8 +350,6 @@ app.post("/playerFan", async (req, res) => {
 //         }
 //     )
 // })
-// 💛 mypage에서 내 팬글 보기
-
 
 
 

@@ -168,10 +168,21 @@ app.get("/host", async (req, res) => {
         const params = req.params;
         const {id} = params;
         connection.query(
-            `select * from contact where username='${id}'`,
+            `select * from contact where usermail='${id}'`,
             (err, rows, fields) => {
                 res.send(rows);
                 console.log(rows[0]);
+            }
+        )
+    })
+    // 💛 내 문의글 삭제
+    app.post("/mypageConDel/:no", async (req, res) => {
+        const params = req.params;
+        const {no} = params;
+        connection.query(
+            `select * from contact where no='${no}'`,
+            (err, rows, fields) => {
+                res.send(rows);
             }
         )
     })
@@ -187,6 +198,7 @@ app.get("/host", async (req, res) => {
             }
         )
     })
+    // 💛 내 팬글 삭제
 
 // 💛 선수 등록
 app.post("/host", async (req, res) => {
@@ -299,15 +311,27 @@ app.get("/playerMore/:name", async (req, res) => {
     )
 })
 
+// app.post("/hostTicket", async (req, res) => {
+//     const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
+//     connection.query(
+//         "INSERT INTO `football`.`ticket` (`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) 
+//          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+//         [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
+//         (err, rows, fields) => {
+//             res.send('티켓 등록 완료');
+//         }
+//     )
+// })
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
-    const { username, title, content, date, keyword, answer, secret, usermail } = req.body;
+    const { username, title, content, answer, date, secret, keyword,usermail } = req.body;
     console.log(username,usermail);
+    // console.log();
     connection.query(
-        "insert into contact (`username`, `title`, `content`, `date`, `keyword`, `answer`, `secret`, `usermail`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
-        [username, title, content, date, keyword, answer, secret, usermail],
+        "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?,DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
+        [username, title, content, answer, secret,keyword, usermail],
         (err, rows, fields) => {
-            // console.log(rows);
+            console.log(rows);
             res.send("문의글 등록완료");
         }
     )

@@ -179,7 +179,7 @@ app.get("/host", async (req, res) => {
     app.post("/mypageConDel/:no", async (req, res) => {
         const params = req.params;
         const {no} = params;
-        console.log(params);
+        // console.log(params);
         connection.query(
             `delete from contact where no='${no}'`,
             (err, rows, fields) => {
@@ -200,6 +200,17 @@ app.get("/host", async (req, res) => {
         )
     })
     // 💛 내 팬글 삭제
+    app.post("/mypageComDel/:no", async (req, res) => {
+        const params = req.params;
+        const {no} = params;
+        // console.log(params);
+        connection.query(
+            `delete from comment where no='${no}'`,
+            (err, rows, fields) => {
+                res.send(rows);
+            }
+        )
+    })
 
 // 💛 선수 등록
 app.post("/host", async (req, res) => {
@@ -292,37 +303,14 @@ app.get("/playerMore/:name", async (req, res) => {
     // const {name} = req.params;
     const params = req.params;
     const name = params.name;
-    // console.log(params);
-    // console.log(params.name);
-    // var res1 = `select * from playerlist where name='${name}';`;
-    // var res2 = `select * from comment where player='${name}';`;
-    // console.log(res1);
-    // console.log(res2);
-    // `SELECT a.name,a.no,b.attendance,b.opening,b.genre,b.rating,b.runningtime,b.img,b.no as num from movie as b
-    // RIGHT OUTER JOIN favorites as a on b.name = a.name where a.id = '${id}'`
     connection.query(
-        // res1 + res2,
         `select * from playerlist where name='${name}'`,
-        // `select * from playerlist where name='${name}'` + `select * from comment where player='${name}'`,
         (err, rows, fields) => {
-            // res.send(rows);
             res.send(rows[0]);
-            // result((rows[0].affectedRows + rows[1].affectedRows));
         }
     )
 })
 
-// app.post("/hostTicket", async (req, res) => {
-//     const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
-//     connection.query(
-//         "INSERT INTO `football`.`ticket` (`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) 
-//          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
-//         [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
-//         (err, rows, fields) => {
-//             res.send('티켓 등록 완료');
-//         }
-//     )
-// })
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
     const { username, title, content, answer, date, secret, keyword,usermail } = req.body;
@@ -332,7 +320,7 @@ app.post("/textContact", async (req, res) => {
         "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?,DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
         [username, title, content, answer, secret,keyword, usermail],
         (err, rows, fields) => {
-            console.log(rows);
+            // console.log(rows);
             res.send("문의글 등록완료");
         }
     )
@@ -344,7 +332,7 @@ app.get("/contact", async (req, res) => {
         "select * from contact", // order by date desc",
         (err, rows, fields) => {
             res.send(rows);
-            console.log(rows);
+            // console.log(rows);
         }
     )
 })
@@ -356,25 +344,23 @@ app.post("/playerFan", async (req, res) => {
         "insert into comment (`id`, `like`, `comment`, `best`, `player`, `email`) values (?, ?, ?, ?, ?, ?)",
         [id, like, comment, best, player, email],
         (err, rows, fields) => {
-            // console.log(rows);
             res.send("팬글 등록완료");
         }
     )
 })
 
-// // 💛 팬글 보기
-// http://localhost:3001/playerMorefan/Kepa%20Arrizabalaga 받아오고있음
-// app.get("/playerMorefan/:player", async (req, res) => {
-//     const {player} = req.params;
-//     // console.log(player);
-//     connection.query(
-//         `select * from comment where player='${player}'`,
-//         (err, rows, fields) => {
-//             console.log(rows);
-//             res.send(rows);
-//         }
-//     )
-// })
+// 💛 팬글 보기
+app.get("/playerMorefan/:player", async (req, res) => {
+    const {player} = req.params;
+    // console.log(player);
+    connection.query(
+        `select * from comment where player='${player}'`,
+        (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
+        }
+    )
+})
 
 
 

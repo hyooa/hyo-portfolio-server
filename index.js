@@ -97,10 +97,10 @@ app.post("/join", async(req, res) => {
         bcrypt.genSalt(saltRounds, function(err, salt) {
             bcrypt.hash(myPlanintextPass, salt, function(err, hash) {
                 myPass = hash;
-                const { username, userpass, useradd , userphone, userdate, usermail } = req.body;
+                const { username, userpass, useradd , userphone, userdate, usermail, gender, usersms, userbirth } = req.body;
                 // console.log(req.body);
-                connection.query("insert into customer_members(`username`, `userpass`, `useradd`, `userphone`, `usermail`, `userdate`) values(?,?,?,?,?, DATE_FORMAT(now(), '%Y-%m-%d'))",
-                [username, myPass, useradd, userphone, usermail],
+                connection.query("insert into customer_members(`username`, `userpass`, `useradd`, `userphone`, `usermail`, `userdate`, `gender`, `usersms`, `userbirth`) values(?,?,?,?,?, DATE_FORMAT(now(), '%Y-%m-%d'),?,?,?)",
+                [username, myPass, useradd, userphone, usermail, gender, usersms, userbirth],
                 (err, result, fields) => {
                     // console.log(result);
                     // console.log(err);
@@ -163,6 +163,22 @@ app.get("/host", async (req, res) => {
             }
         )
     })
+    // 💛 내 회원정보 수정
+    app.put("/editCustomer/:no", async (req, res) => {
+        const params = req.params;
+        const {no} = params;
+        console.log(no);
+        const { my_username,my_useradd,my_userphone,my_userbirth,my_usersms,my_usermail,my_gender} = req.body;
+        connection.query(
+            `update customer_members set username='${my_username}', useradd='${my_useradd}', userphone='${my_userphone}', userbirth='${my_userbirth}', usersms='${my_usersms}', usermail='${my_usermail}', gender='${my_gender}' where usermail='${no}'`,
+            (err, rows, fields) => {
+                console.log(rows);
+                console.log(err);
+                res.send(rows);
+            }
+        )
+    })
+
     // 💛 mypage에서 내 문의글 보기
     app.get("/mypageContact/:id", async (req, res) => {
         const params = req.params;
@@ -211,6 +227,19 @@ app.get("/host", async (req, res) => {
             }
         )
     })
+
+// 💛 HOST 페이지, 회원 삭제
+app.post("/hostCusDelete/:no", async (req, res) => {
+    const params = req.params;
+    const {no} = params;
+    // console.log(params);
+    connection.query(
+        `delete from customer_members where no='${no}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+        }
+    )
+})
 
 // 💛 선수 등록
 app.post("/host", async (req, res) => {
@@ -314,13 +343,12 @@ app.get("/playerMore/:name", async (req, res) => {
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
     const { username, title, content, answer, date, secret, keyword,usermail } = req.body;
-    console.log(username,usermail);
     // console.log();
     connection.query(
-        "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?,DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
-        [username, title, content, answer, secret,keyword, usermail],
+        // DATE_FORMAT(now(), '%Y-%m-%d')
+        "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?, ?, ?, ?, ?, ?)",
+        [username, title, content, answer, secret,keyword, usermail, date],
         (err, rows, fields) => {
-            // console.log(rows);
             res.send("문의글 등록완료");
         }
     )

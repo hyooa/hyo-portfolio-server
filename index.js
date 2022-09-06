@@ -166,14 +166,14 @@ app.get("/host", async (req, res) => {
     // 💛 내 회원정보 수정
     app.put("/editCustomer/:no", async (req, res) => {
         const params = req.params;
-        const {no} = params;
-        console.log(no);
+        console.log(params);
         const { my_username,my_useradd,my_userphone,my_userbirth,my_usersms,my_usermail,my_gender} = req.body;
         connection.query(
-            `update customer_members set username='${my_username}', useradd='${my_useradd}', userphone='${my_userphone}', userbirth='${my_userbirth}', usersms='${my_usersms}', usermail='${my_usermail}', gender='${my_gender}' where usermail='${no}'`,
+            `update customer_members 
+            set username='${my_username}', useradd='${my_useradd}', userphone='${my_userphone}', userbirth='${my_userbirth}', usersms='${my_usersms}', usermail='${my_usermail}', gender='${my_gender}' 
+            where no='${params.no}'`,
             (err, rows, fields) => {
                 console.log(rows);
-                console.log(err);
                 res.send(rows);
             }
         )

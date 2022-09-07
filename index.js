@@ -2,7 +2,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = 3001;
+// const port = 3001;
+const port = process.env.PORT || 8080;
 const mysql = require("mysql");
 const multer = require('multer'); // 불러오기
 app.use(express.static("public")); //public이라는 폴더에 있는 파일에 접근 할 수 있도록 설정

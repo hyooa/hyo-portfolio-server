@@ -342,13 +342,13 @@ app.get("/playerMore/:name", async (req, res) => {
 
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
-    const { username, title, content, answer, date, secret, keyword,usermail } = req.body;
-    // console.log();
+    const { username, title, content, date, answer,  secret, keyword, usermail } = req.body;
     connection.query(
         // DATE_FORMAT(now(), '%Y-%m-%d')
-        "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?, ?, ?, ?, ?, ?)",
-        [username, title, content, answer, secret,keyword, usermail, date],
+        "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
+        [username, title, content, answer, secret,keyword, usermail],
         (err, rows, fields) => {
+            console.log(rows);
             res.send("문의글 등록완료");
         }
     )

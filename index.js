@@ -2,8 +2,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-// const port = 3001;
-const port = process.env.PORT || 8080;
+const port = 3001;
+// const port = process.env.PORT || 8080;
 const mysql = require("mysql");
 const multer = require('multer'); // 불러오기
 app.use(express.static("public")); //public이라는 폴더에 있는 파일에 접근 할 수 있도록 설정
@@ -318,6 +318,16 @@ app.get("/match", async (req, res) => {
     )
 })
 
+// 💛 Home 티켓(경기일정) 해당 월만 보이게
+app.get("/matchLimit", async (req, res) => {
+    connection.query(
+        "select * from ticket where month = 'August' ", (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+
 // 💛 선수 List 보기
 app.get("/suhan", async (req, res) => {
     connection.query(
@@ -385,6 +395,46 @@ app.get("/playerMorefan/:player", async (req, res) => {
     connection.query(
         `select * from comment where player='${player}'`,
         (err, rows, fields) => {
+            // console.log(rows);
+            res.send(rows);
+        }
+    )
+})
+
+// 💛 Team 등록 (경기결과)
+app.post("/hostRes", async (req, res) => {
+    const {rk, team, teamlogo, games, won, draw, lost} = req.body;
+    connection.query(
+        // INSERT INTO `football`.`results` (`rk`, `team`, `teamlogo`, `games`, `won`, `draw`, `lost`) VALUES ('0', '첼시', 'logo.png', '0', '0', '0', '0');
+        "INSERT INTO `football`.`results` (`rk`, `team`, `teamlogo`, `games`, `won`, `draw`, `lost`) VALUES (?,?,?,?,?,?,?)",
+        [rk, team, teamlogo, games, won, draw, lost],
+        (err, rows, fields) => {
+            console.log(rows);
+            res.send('팀 등록 완료');
+        }
+    )
+})
+    const storage3 = multer.diskStorage({
+        destination : function(req, res, cb) {
+            cb(null, 'public/team/')
+        },
+        filename : function(req, file, cb) {
+            cb(null, file.originalname);
+        }
+    })
+    const upload3 = multer({
+        storage : storage3,
+        limits : {fileSize : 30000000}
+    })
+    app.post("/upload3", upload3.array("image3"), function(req, res) {
+        const fileList3 = req.files;
+        res.send({fileList3});
+    })
+
+// 💛 Home 경기결과
+app.get("/results", async (req, res) => {
+    connection.query(
+        "select * from results order by rk asc", (err, rows, fields) => {
             // console.log(rows);
             res.send(rows);
         }

@@ -57,11 +57,11 @@ app.use(cors());
 // 업데이트는 put으로 받기
 
 const connection = mysql.createConnection({
-    host : conf.host,
-    user : conf.user,
-    password : conf.password,
-    port : conf.port,
-    database : conf.database,
+    host: conf.host,
+    user: conf.user,
+    password: conf.password,
+    port: conf.port,
+    database: conf.database,
 })
 
 
@@ -75,56 +75,68 @@ const connection = mysql.createConnection({
 //     res.send(data);
 // })
 
-    // Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
-    // 암호화하지 않고 그대로 저장하는 것은 불법
-    // 등록일은 Now()함수를 사용하여 생성
+// Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
+// 암호화하지 않고 그대로 저장하는 것은 불법
+// 등록일은 Now()함수를 사용하여 생성
 
-    // gensalt()
-    // 메서드는 소금 생성기, 소금을 생성하는 메서드이다.
-    // 솔트(salt)를 생성하는데 솔트는 해시 함수에서
-    // 암호화된 비밀번호를 생성할 때 추가되는 바이트 단위의 임의의 문자열이다. 
+// gensalt()
+// 메서드는 소금 생성기, 소금을 생성하는 메서드이다.
+// 솔트(salt)를 생성하는데 솔트는 해시 함수에서
+// 암호화된 비밀번호를 생성할 때 추가되는 바이트 단위의 임의의 문자열이다. 
 
-    // hashpw(password, salt)
-    // 비밀번호와 salt를 인자로 받아 암호화된 비밀번호를 생성한다.
-    
-    // checkpw(password, hashedPassword)
-    // boolean 타입으로 비밀번호와 암호화된 비밀번호를 인자로 받아
-    // 같을 경우 true, 다를 경우 false를 반환한다.
+// hashpw(password, salt)
+// 비밀번호와 salt를 인자로 받아 암호화된 비밀번호를 생성한다.
+
+// checkpw(password, hashedPassword)
+// boolean 타입으로 비밀번호와 암호화된 비밀번호를 인자로 받아
+// 같을 경우 true, 다를 경우 false를 반환한다.
 // 💛 회원가입
-app.post("/join", async(req, res) => {
+app.post("/join", async (req, res) => {
     let myPlanintextPass = req.body.userpass;
     let myPass = "";
-    if(myPlanintextPass != '' && myPlanintextPass != undefined) {
-        bcrypt.genSalt(saltRounds, function(err, salt) {
-            bcrypt.hash(myPlanintextPass, salt, function(err, hash) {
+    if (myPlanintextPass != '' && myPlanintextPass != undefined) {
+        bcrypt.genSalt(saltRounds, function (err, salt) {
+            bcrypt.hash(myPlanintextPass, salt, function (err, hash) {
                 myPass = hash;
-                const { username, userpass, useradd , userphone, userdate, usermail, gender, usersms, userbirth } = req.body;
+                const { username, userpass, useradd, userphone, userdate, usermail, gender, usersms, userbirth } = req.body;
                 // console.log(req.body);
                 connection.query("insert into customer_members(`username`, `userpass`, `useradd`, `userphone`, `usermail`, `userdate`, `gender`, `usersms`, `userbirth`) values(?,?,?,?,?, DATE_FORMAT(now(), '%Y-%m-%d'),?,?,?)",
-                [username, myPass, useradd, userphone, usermail, gender, usersms, userbirth],
-                (err, result, fields) => {
-                    // console.log(result);
-                    // console.log(err);
-                    res.send("등록되었습니다.");
-                })
+                    [username, myPass, useradd, userphone, usermail, gender, usersms, userbirth],
+                    (err, result, fields) => {
+                        // console.log(result);
+                        // console.log(err);
+                        res.send("등록되었습니다.");
+                    })
             })
         })
     }
 })
 
+// 💛 이메일 중복체크
+app.get("/emailCk/:usermail", async (req, res) => {
+    const params = req.params
+    const { usermail } = params
+    connection.query(
+        `select usermail from customer_members where usermail = '${usermail}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+        }
+    )
+})
+
 // 💛 로그인
-app.post('/login', async(req, res) => {
+app.post('/login', async (req, res) => {
     const { usermail, userpass } = req.body;
     // console.log(req.body);
     connection.query(
         `select * from customer_members where usermail = '${usermail}'`,
         (err, rows, fields) => {
-            if(rows != undefined) {
-                if(rows[0] == undefined) {
+            if (rows != undefined) {
+                if (rows[0] == undefined) {
                     res.send(null)
                 } else {
-                    bcrypt.compare(userpass, rows[0].userpass, function(err, login_flag) {
-                        if(login_flag == true) {
+                    bcrypt.compare(userpass, rows[0].userpass, function (err, login_flag) {
+                        if (login_flag == true) {
                             res.send(rows[0])
                             // console.log("이거");
                         } else {
@@ -153,86 +165,86 @@ app.get("/host", async (req, res) => {
 })
 
 // 💛 마이페이지
-    // 💛 회원정보 조회
-    app.get("/mypageCustomer/:no", async (req, res) => {
-        const params = req.params;
-        const {no} = params;
-        connection.query( 
-            `select * from customer_members where usermail = '${no}'`,
-            (err, rows, fields) => {
-                res.send(rows[0]);
-            }
-        )
-    })
-    // 💛 내 회원정보 수정
-    app.put("/editCustomer/:no", async (req, res) => {
-        const params = req.params;
-        console.log(params);
-        const { my_username,my_useradd,my_userphone,my_userbirth,my_usersms,my_usermail,my_gender} = req.body;
-        connection.query(
-            `update customer_members 
+// 💛 회원정보 조회
+app.get("/mypageCustomer/:no", async (req, res) => {
+    const params = req.params;
+    const { no } = params;
+    connection.query(
+        `select * from customer_members where usermail = '${no}'`,
+        (err, rows, fields) => {
+            res.send(rows[0]);
+        }
+    )
+})
+// 💛 내 회원정보 수정
+app.put("/editCustomer/:no", async (req, res) => {
+    const params = req.params;
+    console.log(params);
+    const { my_username, my_useradd, my_userphone, my_userbirth, my_usersms, my_usermail, my_gender } = req.body;
+    connection.query(
+        `update customer_members 
             set username='${my_username}', useradd='${my_useradd}', userphone='${my_userphone}', userbirth='${my_userbirth}', usersms='${my_usersms}', usermail='${my_usermail}', gender='${my_gender}' 
             where no='${params.no}'`,
-            (err, rows, fields) => {
-                console.log(rows);
-                res.send(rows);
-            }
-        )
-    })
+        (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+})
 
-    // 💛 mypage에서 내 문의글 보기
-    app.get("/mypageContact/:id", async (req, res) => {
-        const params = req.params;
-        const {id} = params;
-        connection.query(
-            `select * from contact where usermail='${id}'`,
-            (err, rows, fields) => {
-                res.send(rows);
-                // console.log(rows[0]);
-            }
-        )
-    })
-    // 💛 내 문의글 삭제
-    app.post("/mypageConDel/:no", async (req, res) => {
-        const params = req.params;
-        const {no} = params;
-        // console.log(params);
-        connection.query(
-            `delete from contact where no='${no}'`,
-            (err, rows, fields) => {
-                res.send(rows);
-            }
-        )
-    })
-    // 💛 mypage에서 내 팬글 보기
-    app.get("/mypageComment/:id", async (req, res) => {
-        const params = req.params;
-        const {id} = params;
-        connection.query(
-            `select * from comment where email='${id}'`,
-            (err, rows, fields) => {
-                res.send(rows);
-                // console.log(rows[0]);
-            }
-        )
-    })
-    // 💛 내 팬글 삭제
-    app.post("/mypageComDel/:no", async (req, res) => {
-        const params = req.params;
-        const {no} = params;
-        // console.log(params);
-        connection.query(
-            `delete from comment where no='${no}'`,
-            (err, rows, fields) => {
-                res.send(rows);
-            }
-        )
-    })
+// 💛 mypage에서 내 문의글 보기
+app.get("/mypageContact/:id", async (req, res) => {
+    const params = req.params;
+    const { id } = params;
+    connection.query(
+        `select * from contact where usermail='${id}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+            // console.log(rows[0]);
+        }
+    )
+})
+// 💛 내 문의글 삭제
+app.post("/mypageConDel/:no", async (req, res) => {
+    const params = req.params;
+    const { no } = params;
+    // console.log(params);
+    connection.query(
+        `delete from contact where no='${no}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+        }
+    )
+})
+// 💛 mypage에서 내 팬글 보기
+app.get("/mypageComment/:id", async (req, res) => {
+    const params = req.params;
+    const { id } = params;
+    connection.query(
+        `select * from comment where email='${id}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+            // console.log(rows[0]);
+        }
+    )
+})
+// 💛 내 팬글 삭제
+app.post("/mypageComDel/:no", async (req, res) => {
+    const params = req.params;
+    const { no } = params;
+    // console.log(params);
+    connection.query(
+        `delete from comment where no='${no}'`,
+        (err, rows, fields) => {
+            res.send(rows);
+        }
+    )
+})
 
 // 💛 HOST 페이지, 회원 삭제
 app.post("/hostCusDelete/:no", async (req, res) => {
     const params = req.params;
-    const {no} = params;
+    const { no } = params;
     // console.log(params);
     connection.query(
         `delete from customer_members where no='${no}'`,
@@ -255,31 +267,31 @@ app.post("/host", async (req, res) => {
         }
     )
 })
-    // 이미지 저장
-    const storage = multer.diskStorage({
-        destination : function(req, res, cb) {
-            cb(null, 'public/player/')
-        },
-        filename : function(req, file, cb) {
-            cb(null, file.originalname);
-        }
-    })
-    // 파일 사이즈 지정
-    const upload = multer({
-        storage : storage,
-        limits : { fileSize : 30000000 }
-    })
-    // 받아서 보내줌
-    app.post("/upload", upload.array("image"), function(req, res) {
-        // const file = req.file;
-        const fileList = req.files;
-        // console.log(fileList);
-        res.send({fileList});
-    })
+// 이미지 저장
+const storage = multer.diskStorage({
+    destination: function (req, res, cb) {
+        cb(null, 'public/player/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+// 파일 사이즈 지정
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 30000000 }
+})
+// 받아서 보내줌
+app.post("/upload", upload.array("image"), function (req, res) {
+    // const file = req.file;
+    const fileList = req.files;
+    // console.log(fileList);
+    res.send({ fileList });
+})
 
 // 💛 티켓 등록
 app.post("/hostTicket", async (req, res) => {
-    const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month} = req.body;
+    const { Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month } = req.body;
     connection.query(
         "INSERT INTO `football`.`ticket` (`Kickoff`, `awaylogo`, `awayname`, `gamedate`, `stadium`, `tkname`, `tkdate`, `tkprice`, `month`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [Kickoff, awaylogo, awayname, gamedate, stadium, tkname, tkdate, tkprice, month],
@@ -288,25 +300,25 @@ app.post("/hostTicket", async (req, res) => {
         }
     )
 })
-    // 이미지 저장
-    const storage2 = multer.diskStorage({
-        destination : function(req, res, cb) {
-            cb(null, 'public/ticket/')
-        },
-        filename : function(req, file, cb) {
-            cb(null, file.originalname);
-        }
-    })
-    // 파일 사이즈 지정
-    const upload2 = multer({
-        storage : storage2,
-        limits : { fileSize : 30000000 }
-    })
-    // 받아서 보내줌
-    app.post("/upload2", upload2.array("image2"), function(req, res) {
-        const fileList2 = req.files;
-        res.send({fileList2});
-    })
+// 이미지 저장
+const storage2 = multer.diskStorage({
+    destination: function (req, res, cb) {
+        cb(null, 'public/ticket/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+// 파일 사이즈 지정
+const upload2 = multer({
+    storage: storage2,
+    limits: { fileSize: 30000000 }
+})
+// 받아서 보내줌
+app.post("/upload2", upload2.array("image2"), function (req, res) {
+    const fileList2 = req.files;
+    res.send({ fileList2 });
+})
 
 // 💛 티켓 구매
 app.get("/match", async (req, res) => {
@@ -353,11 +365,11 @@ app.get("/playerMore/:name", async (req, res) => {
 
 // 💛 문의글 작성하기
 app.post("/textContact", async (req, res) => {
-    const { username, title, content, date, answer,  secret, keyword, usermail } = req.body;
+    const { username, title, content, date, answer, secret, keyword, usermail } = req.body;
     connection.query(
         // DATE_FORMAT(now(), '%Y-%m-%d')
         "insert into contact (`username`, `title`, `content`, `date`,  `answer`, `secret`, `keyword`,`usermail`) values(?, ?, ?, DATE_FORMAT(now(), '%Y-%m-%d'), ?, ?, ?, ?)",
-        [username, title, content, answer, secret,keyword, usermail],
+        [username, title, content, answer, secret, keyword, usermail],
         (err, rows, fields) => {
             console.log(rows);
             res.send("문의글 등록완료");
@@ -376,6 +388,19 @@ app.get("/contact", async (req, res) => {
     )
 })
 
+// 💛 문의글, 답글 작성
+app.put("/answerText", async (req, res) => {
+    const { answer_text, no } = req.body;
+    connection.query(
+        `update contact set answer='${answer_text}' where no = '${no}'`,
+        (err, rows, fields) => {
+            console.log(rows);
+            res.send(rows);
+        }
+    )
+
+})
+
 // 💛 팬글 작성하기
 app.post("/playerFan", async (req, res) => {
     const { id, like, comment, best, player, email } = req.body;
@@ -390,7 +415,7 @@ app.post("/playerFan", async (req, res) => {
 
 // 💛 팬글 보기
 app.get("/playerMorefan/:player", async (req, res) => {
-    const {player} = req.params;
+    const { player } = req.params;
     // console.log(player);
     connection.query(
         `select * from comment where player='${player}'`,
@@ -403,7 +428,7 @@ app.get("/playerMorefan/:player", async (req, res) => {
 
 // 💛 Team 등록 (경기결과)
 app.post("/hostRes", async (req, res) => {
-    const {rk, team, teamlogo, games, won, draw, lost} = req.body;
+    const { rk, team, teamlogo, games, won, draw, lost } = req.body;
     connection.query(
         // INSERT INTO `football`.`results` (`rk`, `team`, `teamlogo`, `games`, `won`, `draw`, `lost`) VALUES ('0', '첼시', 'logo.png', '0', '0', '0', '0');
         "INSERT INTO `football`.`results` (`rk`, `team`, `teamlogo`, `games`, `won`, `draw`, `lost`) VALUES (?,?,?,?,?,?,?)",
@@ -414,22 +439,22 @@ app.post("/hostRes", async (req, res) => {
         }
     )
 })
-    const storage3 = multer.diskStorage({
-        destination : function(req, res, cb) {
-            cb(null, 'public/team/')
-        },
-        filename : function(req, file, cb) {
-            cb(null, file.originalname);
-        }
-    })
-    const upload3 = multer({
-        storage : storage3,
-        limits : {fileSize : 30000000}
-    })
-    app.post("/upload3", upload3.array("image3"), function(req, res) {
-        const fileList3 = req.files;
-        res.send({fileList3});
-    })
+const storage3 = multer.diskStorage({
+    destination: function (req, res, cb) {
+        cb(null, 'public/team/')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+const upload3 = multer({
+    storage: storage3,
+    limits: { fileSize: 30000000 }
+})
+app.post("/upload3", upload3.array("image3"), function (req, res) {
+    const fileList3 = req.files;
+    res.send({ fileList3 });
+})
 
 // 💛 Home 경기결과
 app.get("/results", async (req, res) => {

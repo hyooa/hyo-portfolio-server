@@ -2,8 +2,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = 3001;
-// const port = process.env.PORT || 8080;
+// const port = 3001;
+const port = process.env.PORT || 8080;
 const mysql = require("mysql");
 const multer = require('multer'); // 불러오기
 app.use(express.static("public")); //public이라는 폴더에 있는 파일에 접근 할 수 있도록 설정
@@ -34,28 +34,6 @@ app.use(cors());
 // mysql 쿼리 => select, update, delete, insert 🧡
 // connection.query("쿼리문", 함수(에러, 결과, 결과의 필드정보) => {})
 
-// select문 💜
-// select * from 테이블명
-// where no= 값
-
-// 등록하기 💜
-// insert into 테이블(컬럼1, 컬럼2, 컬럼3,...) values("값1", "값2", "값3",...)
-// 더 쉽게 ↓
-// query("쿼리", [값1, 값2, 값3,...]) => 배열 넣기 💚
-// insert into 테이블(컬럼1, 컬럼2, 컬럼3,...) values(?,?,?,...)
-
-// 삭제하기 💜
-// delete 쿼리문
-// delete from 테이블명 조건절
-// delete from customers_table where no = ${params.no}
-
-// 정보 수정하기 💜
-// update 테이블이름 set 컬럼명 = 값   where no = 값
-// update customers_table
-// set name='', phone='', birth ='', gender='', add1='', add2=''
-// where no =
-// 업데이트는 put으로 받기
-
 const connection = mysql.createConnection({
     host: conf.host,
     user: conf.user,
@@ -63,17 +41,6 @@ const connection = mysql.createConnection({
     port: conf.port,
     database: conf.database,
 })
-
-
-// const corsOptions = {
-//     origin : "http://localhost:3001",
-// };
-// app.use(cors(corsOptions));
-
-// app.get('/api', (req, res) => {
-//     res.header("Access-Control-Allow-Origin", "http://localhost:3001");
-//     res.send(data);
-// })
 
 // Bcrypt를 사용하여 비밀번호 암호화하기 getsalt(), hashpw(), checkpw()
 // 암호화하지 않고 그대로 저장하는 것은 불법
@@ -90,6 +57,7 @@ const connection = mysql.createConnection({
 // checkpw(password, hashedPassword)
 // boolean 타입으로 비밀번호와 암호화된 비밀번호를 인자로 받아
 // 같을 경우 true, 다를 경우 false를 반환한다.
+
 // 💛 회원가입
 app.post("/join", async (req, res) => {
     let myPlanintextPass = req.body.userpass;
@@ -98,10 +66,11 @@ app.post("/join", async (req, res) => {
         bcrypt.genSalt(saltRounds, function (err, salt) {
             bcrypt.hash(myPlanintextPass, salt, function (err, hash) {
                 myPass = hash;
+                const my_add = `${req.body.my_add1} ${req.body.my_add2}`
                 const { username, userpass, useradd, userphone, userdate, usermail, gender, usersms, userbirth } = req.body;
                 // console.log(req.body);
                 connection.query("insert into customer_members(`username`, `userpass`, `useradd`, `userphone`, `usermail`, `userdate`, `gender`, `usersms`, `userbirth`) values(?,?,?,?,?, DATE_FORMAT(now(), '%Y-%m-%d'),?,?,?)",
-                    [username, myPass, useradd, userphone, usermail, gender, usersms, userbirth],
+                    [username, myPass, my_add, userphone, usermail, gender, usersms, userbirth],
                     (err, result, fields) => {
                         // console.log(result);
                         // console.log(err);
